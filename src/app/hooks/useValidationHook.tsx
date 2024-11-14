@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrayIndex } from "../utils/types";
+import { ArrayIndex, UserInput } from "../utils/types";
 
-const useEmailValidation = (userInput: string[], index: ArrayIndex) => {
+const useEmailValidation = (userInput: UserInput[], index: ArrayIndex) => {
   const [isValidEmail, setIsValidEmail] = useState(false);
 
   useEffect(() => {
@@ -18,12 +18,12 @@ const useEmailValidation = (userInput: string[], index: ArrayIndex) => {
   return isValidEmail;
 };
 
-const usePasswordValidation = (userInput: string[], index: ArrayIndex) => {
+const usePasswordValidation = (userInput: UserInput[], index: ArrayIndex) => {
   const [isValidPassword, setIsValidPassword] = useState(false);
 
   useEffect(() => {
     const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
     if (passwordRegex.test(userInput[index]?.value)) {
       setIsValidPassword(true);
     } else {

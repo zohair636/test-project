@@ -1,6 +1,6 @@
 "use client";
 
-import { SignUpHelperFunction } from "@/app/helper/AuthHelper";
+import { SignInHelperFunction } from "@/app/helper/AuthHelper";
 import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import AuthButton, {
@@ -18,26 +18,24 @@ import {
   useEmailValidation,
   usePasswordValidation,
 } from "@/app/hooks/useValidationHook";
-import { useSaveUser, useSignUp } from "@/app/hooks/useTanstackQuery";
+import { useSignIn } from "@/app/hooks/useTanstackQuery";
 import { useRouter } from "next/navigation";
 
-const SignUpForm = () => {
+const SignInForm = () => {
   const navigate = useRouter();
   const auth = getAuth(app);
   const [userInput, setUserInput] = useState<UserInput[]>(
-    SignUpHelperFunction()
+    SignInHelperFunction()
   );
   const [isValidate, setIsValidate] = useState(false);
-  const validEmail = useEmailValidation(userInput, 1);
-  const validPassword = usePasswordValidation(userInput, 2);
+  const validEmail = useEmailValidation(userInput, 0);
+  const validPassword = usePasswordValidation(userInput, 1);
   const {
-    SignUpMutation,
-    SignUpPending,
-    SignUpSuccess,
-    SignUpError,
-    resetSignUpState,
-  } = useSignUp();
-  const { saveUserMutation } = useSaveUser();
+    signInMutation,
+    signInPending,
+    signinError,
+    signinReset,
+  } = useSignIn();
 
   const handleChange = (e: InputChangeEvent, index: ArrayIndex) => {
     setUserInput((prev) => {
@@ -48,24 +46,23 @@ const SignUpForm = () => {
   };
 
   const handleSubmit = async () => {
-    const name = userInput[0].value;
-    const email = userInput[1].value;
-    const password = userInput[2].value;
+    const email = userInput[0].value;
+    const password = userInput[1].value;
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       setIsValidate(true);
       return;
     }
-    SignUpMutation(
+    signInMutation(
       { auth, email, password },
       {
         onSuccess: () => {
-          saveUserMutation({ name, email, password });
+          navigate.push("/profile");
         },
       }
     );
     setTimeout(() => {
-      resetSignUpState();
+      signinReset();
     }, 3000);
   };
 
@@ -75,7 +72,6 @@ const SignUpForm = () => {
       handleSubmit();
     }
   };
-
   return (
     <div className="flex flex-col justify-center items-center border border-neutral-900 p-4 rounded-lg">
       {userInput.map((items, index) => (
@@ -95,12 +91,12 @@ const SignUpForm = () => {
                 : "border-neutral-800 placeholder:text-neutral-600 focus:outline-neutral-800"
             } p-2 px-4 mt-1 rounded-full duration-200`}
           />
-          {index === 1 && !validEmail && (
+          {index === 0 && !validEmail && (
             <p className="text-xs text-red-700 mt-2">
               {errorText.USE_VALID_EMAIL}
             </p>
           )}
-          {index === 2 && !validPassword && (
+          {index === 1 && !validPassword && (
             <p className="text-xs text-red-700 mt-2">
               {errorText.USE_VALID_PASSWORD}
             </p>
@@ -109,19 +105,14 @@ const SignUpForm = () => {
       ))}
       <AuthButton
         onClick={handleSubmit}
-        label={buttonText.REGISTER_LABEL}
-        isLoading={SignUpPending}
+        label={buttonText.SIGNIN_LABEL}
+        isLoading={signInPending}
       />
       <FollowOnButton
-        label={buttonText.ALREADY_HAVE_AN_ACCOUNT_LABEL}
-        onClick={() => navigate.push("/login")}
+        label={buttonText.DO_NOT_HAVE_AN_ACCOUNT_LABEL}
+        onClick={() => navigate.push("/register")}
       />
-      {SignUpSuccess && (
-        <p className="bg-green-800 text-center text-sm w-full my-2 p-1 rounded-full">
-          Your Account has been created successfully!
-        </p>
-      )}
-      {SignUpError && (
+      {signinError && (
         <p className="bg-red-800 text-center text-sm w-full my-2 p-1 rounded-full">
           Something went wrong!
         </p>
@@ -130,4 +121,4 @@ const SignUpForm = () => {
   );
 };
 
-export default SignUpForm;
+export default SignInForm;

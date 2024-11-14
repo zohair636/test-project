@@ -12,15 +12,32 @@ const AuthButton = ({
   onClick: () => void;
 }) => {
   return (
-    <div>
+    <>
       <button
         onClick={onClick}
         className="bg-neutral-900 hover:bg-neutral-900/40 p-2 my-2 rounded-full duration-200 sm:w-96 w-80"
       >
         {isLoading ? loaderText.PROCESSING : label}
       </button>
-    </div>
+    </>
+  );
+};
+
+const FollowOnButton = ({
+  label,
+  onClick,
+}: {
+  label: React.ReactNode;
+  onClick: () => void;
+}) => {
+  return (
+    <>
+      <button onClick={onClick} className="text-sm">
+        {label}
+      </button>
+    </>
   );
 };
 
 export default AuthButton;
+export { FollowOnButton };
