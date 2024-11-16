@@ -60,7 +60,12 @@ const SignUpForm = () => {
       { auth, email, password },
       {
         onSuccess: () => {
-          saveUserMutation({ name, email, password });
+          saveUserMutation({
+            uid: auth?.currentUser?.uid,
+            name,
+            email,
+            password,
+          });
         },
       }
     );

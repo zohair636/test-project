@@ -1,14 +1,25 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createUserWithEmailAndPassword,
+  getAuth,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useContext } from "react";
 import { AppSetterContext } from "../context/AppContext";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import app from "../utils/firebase";
+import { document } from "postcss";
 
 const useSignUp = () => {
   const { setAuthErrorMessage } = useContext(AppSetterContext);
@@ -40,18 +51,21 @@ const useSignUp = () => {
 const useSignIn = () => {
   const {
     mutate: signInMutation,
+    data: signInData,
     isPending: signInPending,
     error: signinError,
     reset: signinReset,
   } = useMutation({
     mutationKey: ["signin"],
     mutationFn: async ({ auth, email, password }) => {
-      return await signInWithEmailAndPassword(auth, email, password);
+      const response = await signInWithEmailAndPassword(auth, email, password);
+      return response || {};
     },
   });
 
   return {
     signInMutation,
+    signInData,
     signInPending,
     signinError,
     signinReset,
@@ -60,14 +74,60 @@ const useSignIn = () => {
 
 const useSaveUser = () => {
   const db = getFirestore(app);
+  const auth = getAuth(app);
   const { mutate: saveUserMutation } = useMutation({
     mutationKey: ["db"],
-    mutationFn: async ({ name, email, password }) => {
-      return await addDoc(collection(db, "users"), { name, email, password });
+    mutationFn: async ({ uid, name, email, password }) => {
+      return await setDoc(doc(db, "users", auth.currentUser?.uid), {
+        uid,
+        name,
+        email,
+        password,
+      });
     },
   });
 
   return { saveUserMutation };
 };
 
-export { useSignUp, useSignIn, useSaveUser };
+const useUserData = () => {
+  const db = getFirestore(app);
+  const q = query(collection(db, "users"));
+  const { data: userInfoData, isLoading: loadingUserData } = useQuery({
+    queryKey: ["user-data"],
+    queryFn: async () => {
+      const querySnapshot = await getDocs(q);
+      const response = querySnapshot.docs.map((doc) => doc.data());
+      return response || {};
+    },
+    staleTime: 5000,
+  });
+
+  return { userInfoData, loadingUserData };
+};
+
+const useUpdateUserData = () => {
+  const db = getFirestore(app);
+  const auth = getAuth(app)
+  const docRef = doc(db, "users", auth.currentUser?.uid);
+  const { mutate: updateUserMutation, isPending: updatingUserData } =
+    useMutation({
+      mutationKey: ["update-user"],
+      mutationFn: async ({ name, email, password }) => {
+        return await updateDoc(docRef, { name, email, password });
+      },
+    });
+
+  return {
+    updateUserMutation,
+    updatingUserData,
+  };
+};
+
+export {
+  useSignUp,
+  useSignIn,
+  useSaveUser,
+  useUserData,
+  useUpdateUserData,
+};
