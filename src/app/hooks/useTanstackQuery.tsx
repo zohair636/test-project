@@ -9,7 +9,6 @@ import {
 import { useContext } from "react";
 import { AppSetterContext } from "../context/AppContext";
 import {
-  addDoc,
   collection,
   doc,
   getDocs,
@@ -19,7 +18,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import app from "../utils/firebase";
-import { document } from "postcss";
 
 const useSignUp = () => {
   const { setAuthErrorMessage } = useContext(AppSetterContext);
@@ -31,7 +29,15 @@ const useSignUp = () => {
     reset: resetSignUpState,
   } = useMutation({
     mutationKey: ["signup"],
-    mutationFn: async ({ auth, email, password }) => {
+    mutationFn: async ({
+      auth,
+      email,
+      password,
+    }: {
+      auth: any;
+      email: string;
+      password: string;
+    }) => {
       return await createUserWithEmailAndPassword(auth, email, password);
     },
     onError: (error) => {
@@ -57,7 +63,15 @@ const useSignIn = () => {
     reset: signinReset,
   } = useMutation({
     mutationKey: ["signin"],
-    mutationFn: async ({ auth, email, password }) => {
+    mutationFn: async ({
+      auth,
+      email,
+      password,
+    }: {
+      auth: any;
+      email: string;
+      password: string;
+    }) => {
       const response = await signInWithEmailAndPassword(auth, email, password);
       return response || {};
     },
@@ -77,7 +91,17 @@ const useSaveUser = () => {
   const auth = getAuth(app);
   const { mutate: saveUserMutation } = useMutation({
     mutationKey: ["db"],
-    mutationFn: async ({ uid, name, email, password }) => {
+    mutationFn: async ({
+      uid,
+      name,
+      email,
+      password,
+    }: {
+      uid: string | undefined;
+      name: string;
+      email: string;
+      password: string;
+    }) => {
       return await setDoc(doc(db, "users", auth.currentUser?.uid), {
         uid,
         name,
@@ -108,12 +132,20 @@ const useUserData = () => {
 
 const useUpdateUserData = () => {
   const db = getFirestore(app);
-  const auth = getAuth(app)
+  const auth = getAuth(app);
   const docRef = doc(db, "users", auth.currentUser?.uid);
   const { mutate: updateUserMutation, isPending: updatingUserData } =
     useMutation({
       mutationKey: ["update-user"],
-      mutationFn: async ({ name, email, password }) => {
+      mutationFn: async ({
+        name,
+        email,
+        password,
+      }: {
+        name: string;
+        email: string;
+        password: string;
+      }) => {
         return await updateDoc(docRef, { name, email, password });
       },
     });
@@ -124,10 +156,4 @@ const useUpdateUserData = () => {
   };
 };
 
-export {
-  useSignUp,
-  useSignIn,
-  useSaveUser,
-  useUserData,
-  useUpdateUserData,
-};
+export { useSignUp, useSignIn, useSaveUser, useUserData, useUpdateUserData };
