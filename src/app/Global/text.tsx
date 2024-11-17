@@ -14,15 +14,20 @@ const buttonText = {
   SIGNIN_LABEL: "Login",
   ALREADY_HAVE_AN_ACCOUNT_LABEL: "Already have an account?",
   DO_NOT_HAVE_AN_ACCOUNT_LABEL: "Don't have an account?",
+  EDIT_LABEL: "Edit Profile",
+  UPDATE_LABEL: "Update",
+  LOGOUT_LABEL: "Logout",
 };
 
 const headingText = {
   REGISTER_TO_CONTINUE: "Register to continue",
   SIGN_IN_TO_CONTINUE: "Sign in to continue",
+  UPDATE_YOUR_PROFILE: "Update your profile",
 };
 
 const loaderText = {
   PROCESSING: "Processing...",
+  UPDATING: "Updating...",
 };
 
 const errorText = {

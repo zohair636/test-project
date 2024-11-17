@@ -22,8 +22,7 @@ const usePasswordValidation = (userInput: UserInput[], index: ArrayIndex) => {
   const [isValidPassword, setIsValidPassword] = useState(false);
 
   useEffect(() => {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+    const passwordRegex = /^.{8,}$/;
     if (passwordRegex.test(userInput[index]?.value)) {
       setIsValidPassword(true);
     } else {
