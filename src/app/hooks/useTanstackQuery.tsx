@@ -18,6 +18,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import app from "../utils/firebase";
+import toast from "react-hot-toast";
 
 const useSignUp = () => {
   const { setAuthErrorMessage } = useContext(AppSetterContext);
@@ -131,28 +132,36 @@ const useUserData = () => {
 };
 
 const useUpdateUserData = () => {
+  const { setMessage } = useContext(AppSetterContext);
   const db = getFirestore(app);
   const auth = getAuth(app);
   const docRef = doc(db, "users", auth.currentUser?.uid);
-  const { mutate: updateUserMutation, isPending: updatingUserData } =
-    useMutation({
-      mutationKey: ["update-user"],
-      mutationFn: async ({
-        name,
-        email,
-        password,
-      }: {
-        name: string;
-        email: string;
-        password: string;
-      }) => {
-        return await updateDoc(docRef, { name, email, password });
-      },
-    });
+  const {
+    mutate: updateUserMutation,
+    isPending: updatingUserData,
+    isSuccess: userDataUpdated,
+  } = useMutation({
+    mutationKey: ["update-user"],
+    mutationFn: async ({
+      name,
+      email,
+      password,
+    }: {
+      name: string;
+      email: string;
+      password: string;
+    }) => {
+      return await updateDoc(docRef, { name, email, password });
+    },
+    // onSuccess: () => {
+    //   setMessage("Your data updated successfully!");
+    // },
+  });
 
   return {
     updateUserMutation,
     updatingUserData,
+    userDataUpdated,
   };
 };
 

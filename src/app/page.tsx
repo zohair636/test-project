@@ -7,7 +7,7 @@ const page = () => {
       <h1 className="lg:text-5xl md:text-4xl text-3xl">
         This is the test project
       </h1>
-      <Link href={"/register"}>
+      <Link href={"/login"}>
         <button className="bg-neutral-900 hover:bg-neutral-950 text-lg p-1 px-4 rounded-full duration-200">
           Let's Start
         </button>

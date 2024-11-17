@@ -19,10 +19,14 @@ const layout = ({ children }: { children: React.ReactNode }) => {
     );
 
   return (
-    <div className="absolute inset-0 flex flex-col justify-center items-center">
-      <h1 className="text-5xl">{authenticatedUser?.[0]?.name} Profile</h1>
-      {children}
-    </div>
+    <>
+      <h1 className="md:text-5xl text-3xl text-center my-6">
+        {authenticatedUser?.[0]?.name}&apos;s Profile
+      </h1>
+      <div className="absolute inset-0 flex flex-col justify-center items-center">
+        {children}
+      </div>
+    </>
   );
 };
 

@@ -25,10 +25,10 @@ const UpdateUserModal = ({
     <div>
       <div
         onClick={onClose}
-        className="fixed top-0 bottom-0 left-0 right-0 bg-black/70 z-50"
+        className="fixed top-0 bottom-0 left-0 right-0 bg-black/70 z-50 backdrop-blur-sm"
       />
       <div
-        className="fixed z-50 bg-white w-96 h-96"
+        className="fixed z-50 bg-neutral-900 xl:w-4/12 lg:w-6/12 md:w-7/12 w-11/12 h-auto p-4 rounded-lg"
         style={{ top: "50%", left: "50%", transform: `translate(-50%, -50%)` }}
       >
         {children}

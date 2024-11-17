@@ -2,7 +2,7 @@
 
 import { SignInHelperFunction } from "@/app/helper/AuthHelper";
 import { getAuth } from "firebase/auth";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import AuthButton, {
   FollowOnButton,
 } from "../../Buttons/AuthButtons.tsx/AuthButton";
@@ -20,6 +20,7 @@ import {
 } from "@/app/hooks/useValidationHook";
 import { useSignIn } from "@/app/hooks/useTanstackQuery";
 import { useRouter } from "next/navigation";
+import { AppGetterContext, AppSetterContext } from "@/app/context/AppContext";
 
 const SignInForm = () => {
   const navigate = useRouter();
@@ -27,15 +28,12 @@ const SignInForm = () => {
   const [userInput, setUserInput] = useState<UserInput[]>(
     SignInHelperFunction()
   );
-  const [isValidate, setIsValidate] = useState(false);
+  const { setIsValidate } = useContext(AppSetterContext);
+  const { isValidate } = useContext(AppGetterContext);
   const validEmail = useEmailValidation(userInput, 0);
   const validPassword = usePasswordValidation(userInput, 1);
-  const {
-    signInMutation,
-    signInPending,
-    signinError,
-    signinReset,
-  } = useSignIn();
+  const { signInMutation, signInPending, signinError, signinReset } =
+    useSignIn();
 
   const handleChange = (e: InputChangeEvent, index: ArrayIndex) => {
     setUserInput((prev) => {
@@ -45,12 +43,20 @@ const SignInForm = () => {
     });
   };
 
+  const handleValidation = (index: ArrayIndex, valid: boolean) => {
+    setIsValidate((prev) => {
+      const validate = [...prev];
+      validate[index] = valid;
+      return validate;
+    });
+  };
+
   const handleSubmit = async () => {
     const email = userInput[0].value;
     const password = userInput[1].value;
 
     if (!email || !password) {
-      setIsValidate(true);
+      handleValidation(1, true);
       return;
     }
     signInMutation(
@@ -82,21 +88,21 @@ const SignInForm = () => {
             onChange={(e) => handleChange(e, index)}
             onKeyDown={handleEnterKey}
             placeholder={
-              isValidate ? errorText.REQUIRED_FIELD : items?.placeholder
+              isValidate[1] ? errorText.REQUIRED_FIELD : items?.placeholder
             }
             type={items?.type}
             className={`bg-transparent outline-none sm:w-96 w-80 border ${
-              isValidate && !items?.value
+              isValidate[1] && !items?.value
                 ? "border-red-700 placeholder:text-red-700 focus:outline-red-800"
                 : "border-neutral-800 placeholder:text-neutral-600 focus:outline-neutral-800"
             } p-2 px-4 mt-1 rounded-full duration-200`}
           />
-          {index === 0 && !validEmail && (
+          {index === 0 && !validEmail && items?.value && (
             <p className="text-xs text-red-700 mt-2">
               {errorText.USE_VALID_EMAIL}
             </p>
           )}
-          {index === 1 && !validPassword && (
+          {index === 1 && !validPassword && items?.value && (
             <p className="text-xs text-red-700 mt-2">
               {errorText.USE_VALID_PASSWORD}
             </p>
