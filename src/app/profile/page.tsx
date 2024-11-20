@@ -13,7 +13,7 @@ import {
 import { AppGetterContext, AppSetterContext } from "../context/AppContext";
 import { useRouter } from "next/navigation";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const userDetails = UserProfileHelperFunction();
   const [uploadImage, setUploadImage] = useState(null);
@@ -50,7 +50,7 @@ const page = () => {
             className="size-40 rounded-full"
           />
         ) : (
-          <div className="bg-white md:size-40 size-28 rounded-full" />
+          <div className="bg-transparent border-2 border-neutral-800 md:size-40 size-28 rounded-full" />
         )}
       </div>
       <div className="flex justify-center items-center mb-10">
@@ -85,4 +85,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -2,8 +2,10 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
+  Auth,
   createUserWithEmailAndPassword,
   getAuth,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { useContext } from "react";
@@ -18,7 +20,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import app from "../utils/firebase";
-import toast from "react-hot-toast";
 
 const useSignUp = () => {
   const { setAuthErrorMessage } = useContext(AppSetterContext);
@@ -35,7 +36,7 @@ const useSignUp = () => {
       email,
       password,
     }: {
-      auth: any;
+      auth: Auth;
       email: string;
       password: string;
     }) => {
@@ -69,7 +70,7 @@ const useSignIn = () => {
       email,
       password,
     }: {
-      auth: any;
+      auth: Auth;
       email: string;
       password: string;
     }) => {
@@ -90,10 +91,10 @@ const useSignIn = () => {
 const useSaveUser = () => {
   const db = getFirestore(app);
   const auth = getAuth(app);
-  const { mutate: saveUserMutation } = useMutation({
+
+  const saveUserMutation = useMutation({
     mutationKey: ["db"],
     mutationFn: async ({
-      uid,
       name,
       email,
       password,
@@ -103,11 +104,24 @@ const useSaveUser = () => {
       email: string;
       password: string;
     }) => {
-      return await setDoc(doc(db, "users", auth.currentUser?.uid), {
-        uid,
-        name,
-        email,
-        password,
+      return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            try {
+              await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                name,
+                email,
+                password,
+              });
+              resolve("User saved successfully");
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            reject(new Error("User is not authenticated"));
+          }
+        });
       });
     },
   });
@@ -135,7 +149,7 @@ const useUpdateUserData = () => {
   const { setMessage } = useContext(AppSetterContext);
   const db = getFirestore(app);
   const auth = getAuth(app);
-  const docRef = doc(db, "users", auth.currentUser?.uid);
+
   const {
     mutate: updateUserMutation,
     isPending: updatingUserData,
@@ -151,11 +165,15 @@ const useUpdateUserData = () => {
       email: string;
       password: string;
     }) => {
+      if (!auth.currentUser?.uid) {
+        throw new Error("User is not authenticated");
+      }
+      const docRef = doc(db, "users", auth.currentUser.uid); // Ensure uid is available
       return await updateDoc(docRef, { name, email, password });
     },
-    // onSuccess: () => {
-    //   setMessage("Your data updated successfully!");
-    // },
+    onSuccess: () => {
+      setMessage("Your data updated successfully!");
+    },
   });
 
   return {
